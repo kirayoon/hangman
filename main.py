@@ -22,7 +22,7 @@ game_font_small = pygame.font.SysFont('comicsans', 20)
 class Hangman(object):
     images = []
     for i in range(8):
-        image = pygame.image.load('hangman_' + str(i) + '.png')
+        image = pygame.image.load('images/hangman_' + str(i) + '.png')
         images.append(image)
 
     def __init__(self):
