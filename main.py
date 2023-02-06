@@ -41,7 +41,7 @@ words = ['DEVELOPER', 'DEVELOPER', 'DEVELOPER']
 word = random.choice(words)
 buttons = []
 guessed_true = []
-guessed_false = []
+wrong_guess = []
 
 
 def draw():
@@ -60,7 +60,7 @@ def draw():
 
     # draw wrong guesses
     wrong_guesses = ''
-    for letter in guessed_false:
+    for letter in wrong_guess:
         wrong_guesses += letter + ' '
     wrong_text = game_font_small.render(wrong_guesses, True, LIGHT_BROWN)
     win.blit(wrong_text, (400, 300))
@@ -76,14 +76,6 @@ def draw():
     pygame.display.update()
 
 
-def end(won):
-    if won:
-        display_message("You Won!")
-    else:
-        display_message("You Lost!")
-    reset()
-
-
 def display_message(message):
     pygame.time.delay(1000)
     win.fill(BEIGE)
@@ -93,17 +85,39 @@ def display_message(message):
     pygame.time.delay(3000)
 
 
+def check_won():
+    global limbs
+    won = True
+    for letter in word:
+        if letter not in guessed_true:
+            won = False
+            break
+    return won
+
+
+def end(won):
+    global limbs
+    if won:
+        display_message("You Won!")
+    else:
+        pygame.time.delay(1000)
+        limbs = 7
+        draw()
+        display_message("You Lost!")
+    reset()
+
+
 def reset():
-    global limbs, guessed_true, guessed_false, word
+    global limbs, guessed_true, wrong_guess, word
     limbs = 0
     guessed_true = []
-    guessed_false = []
+    wrong_guess = []
     word = random.choice(words)
     for letter in letters:
         letter[3] = True
+    play()
 
 
-# game loop
 def main():
     global limbs
 
@@ -127,39 +141,31 @@ def main():
                         letter[3] = False
                         guessed_true.append(ltr)
                         if ltr not in word:
-                            guessed_false.append(ltr)
+                            wrong_guess.append(ltr)
                             limbs += 1
 
         draw()
-
-        # check if won
-        won = True
-        for letter in word:
-            if letter not in guessed_true:
-                won = False
-                break
-
-        if won:
+        if check_won():
             end(True)
-            break
-
+            run = False
         if limbs == 6:
-            pygame.time.delay(1000)
-            limbs = 7
-            draw()
             end(False)
-            break
+            run = False
 
 
-while True:
-    win.fill(BEIGE)
-    text = game_font.render("Click anywhere to start", True, BROWN)
-    win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 2))
-    pygame.display.update()
+def play():
+    while True:
+        win.fill(BEIGE)
+        text = game_font.render("Click anywhere to start", True, BROWN)
+        win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 2))
+        pygame.display.update()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            main()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+
+
+play()
